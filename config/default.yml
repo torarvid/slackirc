@@ -1,3 +1,5 @@
 slack:
   domain: 'If you have ninjas.slack.com, then put ninjas here'
   apiToken: 'InsertIncomingWebhookTokenHere'
+server:
+  port: 8080
