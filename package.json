@@ -11,5 +11,12 @@
     "url": "github:torarvid/slackirc"
   },
   "author": "Tor Arvid Lund",
-  "license": "MIT"
+  "license": "MIT",
+  "dependencies": {
+    "config": "^1.0.2",
+    "js-yaml": "^3.2.1",
+    "lodash": "^2.4.1",
+    "needle": "^0.7.9",
+    "q": "^1.0.1"
+  }
 }
