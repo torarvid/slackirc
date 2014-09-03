@@ -13,7 +13,6 @@ app.post('/toirc', function(req, res){
   l.debug('Got incoming msg to IRC: ', req.body);
   messageparser.parseIrcMessage(req.body)
   .then(function(message) {
-    l.debug('IRC message parsed');
     return ircdispatcher.postMessage(message);
   })
   .then(function(result) {
