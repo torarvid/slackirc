@@ -1,5 +1,10 @@
 slack:
   domain: 'If you have ninjas.slack.com, then put ninjas here'
-  apiToken: 'InsertIncomingWebhookTokenHere'
+
+  # apiToken: This is not meant to be incoming/outgoing web hooks token, but the token you generate
+  # on https://api.slack.com
+  apiToken: 'InsertSlackAPITokenHere'
 server:
   port: 8080
+thisServer:
+  slackToken: 'InsertSlackOutgoingWebHooksTokenHere'

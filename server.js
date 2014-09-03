@@ -16,8 +16,9 @@ app.post('/toirc', function(req, res){
     l.debug('IRC message parsed');
     return ircdispatcher.postMessage(message);
   })
-  .then(function() {
-    l.verbose('IRC message sent to IRC server');
+  .then(function(result) {
+    if (result && result.sent)
+      l.verbose('IRC message sent to IRC server');
     res.status(200).end();
   }, function error (e) {
     if (e.name !== 'HttpError')
