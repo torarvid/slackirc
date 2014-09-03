@@ -21,5 +21,12 @@
     "needle": "^0.7.9",
     "q": "^1.0.1",
     "slate-irc": "^0.6.0"
+  },
+  "devDependencies": {
+    "gulp": "^3.8.7",
+    "gulp-jshint": "^1.8.4",
+    "gulp-nodemon": "^1.0.4",
+    "gulp-util": "^3.0.1",
+    "jshint-stylish": "^0.4.0"
   }
 }

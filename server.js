@@ -13,4 +13,4 @@ app.post('/toirc', function(req, res){
 
 var server = app.listen(config.server.port, function() {
   console.log('Listening on port ' + config.server.port);
-})
+});
