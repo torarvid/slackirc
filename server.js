@@ -21,9 +21,13 @@ app.post('/toirc', function(req, res){
       l.verbose('IRC message sent to IRC server');
     res.status(200).end();
   }, function error (e) {
-    if (e.name !== 'HttpError')
+    if (e.name === 'HttpError') {
+      // Send 200 so that Slack will display the message
+      res.status(200).json({text: 'Error: ' + e.message});
+    } else {
       l.error('%s\nStack: "%s"', e.toString(), e.stack);
-    res.status(e.statusCode);
+      res.status(500);
+    }
   })
   .done();
 });
