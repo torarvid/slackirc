@@ -16,7 +16,8 @@ gulp.task('lint', function() {
 gulp.task('server', ['lint'], function() {
   var options = {
     script: 'server.js',
-    ext: 'js json yml'
+    ext: 'js json yml',
+    ignore: 'db.json'
   };
   return nodemonitor(options)
     .on('change', 'lint')

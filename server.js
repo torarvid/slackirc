@@ -4,6 +4,7 @@ var bodyParser = require('body-parser');
 var ircdispatcher = require('./lib/ircdispatcher');
 var messageparser = require('./lib/messageparser');
 var l = require('./lib/log')('Server');
+var db = require('./lib/db');
 
 var app = express();
 
@@ -28,5 +29,6 @@ app.post('/toirc', function(req, res){
 });
 
 var server = app.listen(config.server.port, function() {
+  db.load();
   l.info('Listening on port ' + config.server.port);
 });
