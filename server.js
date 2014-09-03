@@ -3,7 +3,7 @@ var express = require('express');
 var bodyParser = require('body-parser');
 var ircdispatcher = require('./lib/ircdispatcher');
 var messageparser = require('./lib/messageparser');
-var l = require('./lib/log');
+var l = require('./lib/log')('Server');
 
 var app = express();
 
