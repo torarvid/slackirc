@@ -19,6 +19,7 @@ gulp.task('server', ['lint'], function() {
     ext: 'js json yml'
   };
   return nodemonitor(options)
+    .on('change', 'lint')
     .on('crash', 'beep');
 });
 
