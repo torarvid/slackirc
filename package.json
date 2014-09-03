@@ -20,7 +20,8 @@
     "lodash": "^2.4.1",
     "needle": "^0.7.9",
     "q": "^1.0.1",
-    "slate-irc": "^0.6.0"
+    "slate-irc": "^0.6.0",
+    "winston": "^0.7.3"
   },
   "devDependencies": {
     "gulp": "^3.8.7",
