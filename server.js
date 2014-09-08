@@ -54,13 +54,11 @@ app.post('/ircsetup', function(req, res) {
     var parts = message.text.split(' ');
     options = {channelMap: {}}
     parts.forEach(function(part) {
-      l.debug('Part "%s"', part);
       var splitPos = part.indexOf('=');
       if (splitPos < 1)
         return;
       var key = part.substring(0, splitPos);
       var value = part.substring(splitPos + 1);
-      l.debug('Key: "%s", V "%s"', key, value);
       if (key === 'ssl') {
         options.useTLS = (value === 'true');
       } else if (key === 'server') {
@@ -78,7 +76,7 @@ app.post('/ircsetup', function(req, res) {
       return;
     }
     var serverConfig = db.getOrAddServerConfig(options.host, options.port);
-    _.extend(serverConfig, options);
+    _.defaults(serverConfig, options);
     _.forOwn(options.channelMap, function(ircChannel, slackChannel) {
       db.mapChannels(serverConfig, slackChannel, ircChannel);
     })
@@ -130,7 +128,6 @@ var clientCreator = function(config, member) {
     var user = db.getUser(member);
     if (!user)
       l.warn('User %s not found', member);
-    console.log(config);
     var options = _.clone(config);
     options = _.extend(options, {
       nick: user.name,
