@@ -46,6 +46,11 @@ app.post('/ircsetup', function(req, res) {
         + 'password=monkeybusiness channel=#development"');
       return;
     }
+    var existing = db.getServerConfig(message.channel_id)
+    if (existing) {
+      res.status(200).send('Channel is already connected to IRC');
+      return;
+    }
     var parts = message.text.split(' ');
     options = {channelMap: {}}
     parts.forEach(function(part) {
