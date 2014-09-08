@@ -75,10 +75,20 @@ app.post('/ircsetup', function(req, res) {
     });
     if (!_.hasAll(options, 'host', 'port') || options.channelMap.length < 1) {
       res.status(200).send('Must specify at least host:port and an irc channel name to map to');
-    } else {
-      createClientConnection(options);
-      res.status(200).send('Setup successful (??)');
+      return;
     }
+    var serverConfig = db.getOrAddServerConfig(options.host, options.port);
+    _.extend(serverConfig, options);
+    _.forOwn(options.channelMap, function(ircChannel, slackChannel) {
+      db.mapChannels(serverConfig, slackChannel, ircChannel);
+    })
+    createClientConnection(serverConfig)
+    .then(function() {
+      res.status(200).send('Setup and connection was successful');
+    }, function(err) {
+      res.status(200).send('ERROR! Message was: ', err.toString());
+    })
+    .done();
   })
   .done();
 });
@@ -88,25 +98,31 @@ var createClientConnections = function() {
 };
 
 var createClientConnection = function(config) {
+  var all = [];
   _.forOwn(config.channelMap, function(ircChannel, slackChannel) {
-    slack.getChannelInfo({channel: slackChannel})
+    var promise = slack.getChannelInfo({channel: slackChannel})
     .then(function(info) {
       if (info && info.channel) {
         connectSlackChannelToIrc(config, info.channel, ircChannel);
       }
     })
     .done();
+    all.push(promise);
   });
+  return q.all(all);
 }
 
 var connectSlackChannelToIrc = function(config, slackChannel, ircChannel) {
+  var all = [];
   slackChannel.members.forEach(function(member) {
-    db.getOrAddClient(slackChannel.id, member, clientCreator(config, member))
+    var promise = db.getOrAddClient(slackChannel.id, member, clientCreator(config, member))
     .then(function(client) {
       return ezirc.join(client, ircChannel);
     })
     .done();
+    all.push(promise);
   });
+  return q.all(all);
 }
 
 var clientCreator = function(config, member) {
