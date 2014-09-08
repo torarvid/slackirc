@@ -37,6 +37,47 @@ app.post('/toirc', function(req, res){
   .done();
 });
 
+app.post('/ircsetup', function(req, res) {
+  l.debug('Got IRC setup message from Slack');
+  messageparser.parseIrcSetupMessage(req.body)
+  .then(function(message) {
+    if (message.text.length === 0 || message.text.indexOf('help') >= 0) {
+      res.status(200).send('Try for instance "/ircsetup ssl=true server=irc.mozilla.org:6697 '
+        + 'password=monkeybusiness channel=#development"');
+      return;
+    }
+    var parts = message.text.split(' ');
+    options = {channelMap: {}}
+    parts.forEach(function(part) {
+      l.debug('Part "%s"', part);
+      var splitPos = part.indexOf('=');
+      if (splitPos < 1)
+        return;
+      var key = part.substring(0, splitPos);
+      var value = part.substring(splitPos + 1);
+      l.debug('Key: "%s", V "%s"', key, value);
+      if (key === 'ssl') {
+        options.useTLS = (value === 'true');
+      } else if (key === 'server') {
+        var hostSpec = value.split(':');
+        options.host = hostSpec[0];
+        options.port = hostSpec.length > 1 ? hostSpec[1] : "6667";
+      } else if (key === 'password') {
+        options.serverPassword = value;
+      } else if (key === 'channel') {
+        options.channelMap[message.channel_id] = value;
+      }
+    });
+    if (!_.hasAll(options, 'host', 'port') || options.channelMap.length < 1) {
+      res.status(200).send('Must specify at least host:port and an irc channel name to map to');
+    } else {
+      createClientConnection(options);
+      res.status(200).send('Setup successful (??)');
+    }
+  })
+  .done();
+});
+
 var createClientConnections = function() {
   _.forOwn(db.allServerConfigs(), createClientConnection);
 };
