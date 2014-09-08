@@ -38,40 +38,49 @@ app.post('/toirc', function(req, res){
 });
 
 var createClientConnections = function() {
-  _.forOwn(db.allServerConfigs(), function(config) {
-    _.forOwn(config.channelMap, function(ircChannel, slackChannel) {
-      slack.getChannelInfo({channel: slackChannel})
-      .then(function(info) {
-        if (info && info.channel) {
-          info.channel.members.forEach(function(member) {
-            var clientCreator = function() {
-              var user = db.getUser(member);
-              if (!user)
-                l.warn('User %s not found', member);
-              console.log(config);
-              var options = _.clone(config);
-              options = _.extend(options, {
-                nick: user.name,
-                userid: user.name,
-                username: user.real_name
-              });
-              return ezirc.connect(options)
-              .then(function(client) {
-                ezirc.onMessage(client, slackdispatcher.postMessage);
-                return client;
-              });
-            };
-            db.getOrAddClient(info.channel.id, member, clientCreator)
-            .then(function(client) {
-              return ezirc.join(client, ircChannel);
-            })
-            .done();
-          });
-        }
-      })
-      .done();
-    });
+  _.forOwn(db.allServerConfigs(), createClientConnection);
+};
+
+var createClientConnection = function(config) {
+  _.forOwn(config.channelMap, function(ircChannel, slackChannel) {
+    slack.getChannelInfo({channel: slackChannel})
+    .then(function(info) {
+      if (info && info.channel) {
+        connectSlackChannelToIrc(config, info.channel, ircChannel);
+      }
+    })
+    .done();
   });
+}
+
+var connectSlackChannelToIrc = function(config, slackChannel, ircChannel) {
+  slackChannel.members.forEach(function(member) {
+    db.getOrAddClient(slackChannel.id, member, clientCreator(config, member))
+    .then(function(client) {
+      return ezirc.join(client, ircChannel);
+    })
+    .done();
+  });
+}
+
+var clientCreator = function(config, member) {
+  return function() {
+    var user = db.getUser(member);
+    if (!user)
+      l.warn('User %s not found', member);
+    console.log(config);
+    var options = _.clone(config);
+    options = _.extend(options, {
+      nick: user.name,
+      userid: user.name,
+      username: user.real_name
+    });
+    return ezirc.connect(options)
+    .then(function(client) {
+      ezirc.onMessage(client, slackdispatcher.postMessage);
+      return client;
+    });
+  }
 };
 
 var startServer = function() {
