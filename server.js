@@ -2,6 +2,7 @@ var config = require('config');
 var express = require('express');
 var bodyParser = require('body-parser');
 var ircdispatcher = require('./lib/ircdispatcher');
+var slackdispatcher = require('./lib/slackdispatcher');
 var messageparser = require('./lib/messageparser');
 var l = require('./lib/log')('Server');
 var db = require('./lib/db');
@@ -38,7 +39,7 @@ app.post('/toirc', function(req, res){
 
 var createClientConnections = function() {
   _.forOwn(db.allServerConfigs(), function(config) {
-    _.forOwn(config.channelMap, function(__, slackChannel) {
+    _.forOwn(config.channelMap, function(ircChannel, slackChannel) {
       slack.getChannelInfo({channel: slackChannel})
       .then(function(info) {
         if (info && info.channel) {
@@ -47,14 +48,24 @@ var createClientConnections = function() {
               var user = db.getUser(member);
               if (!user)
                 l.warn('User %s not found', member);
-              var options = _.extend(config, {
+              console.log(config);
+              var options = _.clone(config);
+              options = _.extend(options, {
                 nick: user.name,
                 userid: user.name,
                 username: user.real_name
               });
-              return ezirc.connect(options);
+              return ezirc.connect(options)
+              .then(function(client) {
+                ezirc.onMessage(client, slackdispatcher.postMessage);
+                return client;
+              });
             };
-            db.getOrAddClient(info.channel.id, member, clientCreator);
+            db.getOrAddClient(info.channel.id, member, clientCreator)
+            .then(function(client) {
+              return ezirc.join(client, ircChannel);
+            })
+            .done();
           });
         }
       })
