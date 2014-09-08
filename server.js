@@ -5,6 +5,10 @@ var ircdispatcher = require('./lib/ircdispatcher');
 var messageparser = require('./lib/messageparser');
 var l = require('./lib/log')('Server');
 var db = require('./lib/db');
+var slack = require('./lib/slack');
+var _ = require('./lib/toolbelt');
+var ezirc = require('./lib/ezirc');
+var q = require('q');
 
 var app = express();
 
@@ -32,7 +36,44 @@ app.post('/toirc', function(req, res){
   .done();
 });
 
-var server = app.listen(config.server.port, function() {
-  db.load();
-  l.info('Listening on port ' + config.server.port);
-});
+var createClientConnections = function() {
+  _.forOwn(db.allServerConfigs(), function(config) {
+    _.forOwn(config.channelMap, function(__, slackChannel) {
+      slack.getChannelInfo({channel: slackChannel})
+      .then(function(info) {
+        if (info && info.channel) {
+          info.channel.members.forEach(function(member) {
+            var clientCreator = function() {
+              var user = db.getUser(member);
+              if (!user)
+                l.warn('User %s not found', member);
+              var options = _.extend(config, {
+                nick: user.name,
+                userid: user.name,
+                username: user.real_name
+              });
+              return ezirc.connect(options);
+            };
+            db.getOrAddClient(info.channel.id, member, clientCreator);
+          });
+        }
+      })
+      .done();
+    });
+  });
+};
+
+var startServer = function() {
+  app.listen(config.server.port, function() {
+    l.info('Listening on port ' + config.server.port);
+  });
+};
+
+db.load();
+slack.getUserList()
+.then(db.cacheUsers)
+.then(function() {
+  createClientConnections();
+  startServer();
+})
+.done();

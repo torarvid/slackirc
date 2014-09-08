@@ -1,3 +1,4 @@
+# Copy this file to local.yml and modify to your liking
 slack:
   domain: 'If you have ninjas.slack.com, then put ninjas here'
 
@@ -8,3 +9,5 @@ server:
   port: 8080
 thisServer:
   slackToken: 'InsertSlackOutgoingWebHooksTokenHere'
+ircServers:
+  rejectUnauthorizedTlsCerts: true
