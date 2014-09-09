@@ -7,7 +7,7 @@ slack:
   apiToken: 'InsertSlackAPITokenHere'
 server:
   port: 8080
-thisServer:
-  slackToken: 'InsertSlackOutgoingWebHooksTokenHere'
 ircServers:
+  # set to false if you want self-signed SSL certs to be accepted by default
+  # (you can also override this per server in db/db.json)
   rejectUnauthorizedTlsCerts: true
