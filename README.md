@@ -10,6 +10,8 @@ can do
 
 in a Slack channel, and it will set up the connection.
 
+Please feel free to send me comments and suggestions, either here or in the [public trello board](https://trello.com/b/bEHt5lrT/slackirc).
+
 ### Integration setup
 
 For this service to work, we depend on various Slack integrations.
