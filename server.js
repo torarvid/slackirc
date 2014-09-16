@@ -46,13 +46,13 @@ app.post('/ircsetup', function(req, res) {
         + 'password=monkeybusiness channel=#development"');
       return;
     }
-    var existing = db.getServerConfig(message.channel_id)
+    var existing = db.getServerConfig(message.channel_id);
     if (existing) {
       res.status(200).send('Channel is already connected to IRC');
       return;
     }
     var parts = message.text.split(' ');
-    options = {channelMap: {}}
+    options = {channelMap: {}};
     parts.forEach(function(part) {
       var splitPos = part.indexOf('=');
       if (splitPos < 1)
@@ -79,7 +79,7 @@ app.post('/ircsetup', function(req, res) {
     _.defaults(serverConfig, options);
     _.forOwn(options.channelMap, function(ircChannel, slackChannel) {
       db.mapChannels(serverConfig, slackChannel, ircChannel);
-    })
+    });
     createClientConnection(serverConfig)
     .then(function() {
       res.status(200).send('Setup and connection was successful');
@@ -108,7 +108,7 @@ var createClientConnection = function(config) {
     all.push(promise);
   });
   return q.all(all);
-}
+};
 
 var connectSlackChannelToIrc = function(config, slackChannel, ircChannel) {
   var all = [];
@@ -121,7 +121,7 @@ var connectSlackChannelToIrc = function(config, slackChannel, ircChannel) {
     all.push(promise);
   });
   return q.all(all);
-}
+};
 
 var clientCreator = function(config, member) {
   return function() {
@@ -139,7 +139,7 @@ var clientCreator = function(config, member) {
       ezirc.onMessage(client, slackdispatcher.postMessage);
       return client;
     });
-  }
+  };
 };
 
 var startServer = function() {
