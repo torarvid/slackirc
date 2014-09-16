@@ -4,12 +4,20 @@ var config = require('config');
 var db = require('./lib/db');
 var express = require('express');
 var ezirc = require('./lib/ezirc');
+var fs = require('fs');
+var http = require('http');
+var https = require('https');
 var ircdispatcher = require('./lib/ircdispatcher');
 var l = require('./lib/log')('Server');
 var messageparser = require('./lib/messageparser');
 var q = require('q');
 var slack = require('./lib/slack');
 var slackdispatcher = require('./lib/slackdispatcher');
+
+var httpsOptions = {
+  key: fs.readFileSync(config.server.sslPrivateKeyPath),
+  cert: fs.readFileSync(config.server.sslCertificatePath),
+};
 
 var app = express();
 
@@ -143,7 +151,10 @@ var clientCreator = function(config, member) {
 };
 
 var startServer = function() {
-  app.listen(config.server.port, function() {
+  var server = config.server.useHttps
+    ? https.createServer(httpsOptions, app)
+    : http.createServer(app);
+  server.listen(config.server.port, function() {
     l.info('Listening on port ' + config.server.port);
   });
 };
