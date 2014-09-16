@@ -1,15 +1,15 @@
-var config = require('config');
-var express = require('express');
-var bodyParser = require('body-parser');
-var ircdispatcher = require('./lib/ircdispatcher');
-var slackdispatcher = require('./lib/slackdispatcher');
-var messageparser = require('./lib/messageparser');
-var l = require('./lib/log')('Server');
-var db = require('./lib/db');
-var slack = require('./lib/slack');
 var _ = require('./lib/toolbelt');
+var bodyParser = require('body-parser');
+var config = require('config');
+var db = require('./lib/db');
+var express = require('express');
 var ezirc = require('./lib/ezirc');
+var ircdispatcher = require('./lib/ircdispatcher');
+var l = require('./lib/log')('Server');
+var messageparser = require('./lib/messageparser');
 var q = require('q');
+var slack = require('./lib/slack');
+var slackdispatcher = require('./lib/slackdispatcher');
 
 var app = express();
 
