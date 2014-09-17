@@ -151,11 +151,10 @@ var clientCreator = function(config, member) {
 };
 
 var startServer = function() {
-  var server = config.server.useHttps
-    ? https.createServer(httpsOptions, app)
-    : http.createServer(app);
+  var useHttps = config.server.useHttps;
+  var server = useHttps ? https.createServer(httpsOptions, app) : http.createServer(app);
   server.listen(config.server.port, function() {
-    l.info('Listening on port ' + config.server.port);
+    l.info('Listening for HTTP%s traffic on port %s', useHttps ? 'S' : '', config.server.port);
   });
 };
 
