@@ -6,7 +6,7 @@
 This little server attempts to be a two-way bridge between Slack and IRC. The idea is that you
 can do
 
-`/ircsetup ssl=true server=myircserver.com:6697 server=myserverpassword channel=#myircchannel`
+`/ircsetup ssl=true server=myircserver.com:6697 password=myserverpassword channel=#myircchannel`
 
 in a Slack channel, and it will set up the connection.
 
